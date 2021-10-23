@@ -23,6 +23,7 @@ class ViewController: UIViewController {
         }
     }
     var level = 1
+    var questionsAnswered = 0
     
     override func loadView() {
         view = UIView()
@@ -73,6 +74,8 @@ class ViewController: UIViewController {
         
         let buttonsView = UIView()
         buttonsView.translatesAutoresizingMaskIntoConstraints = false
+        buttonsView.layer.borderColor = UIColor.gray.cgColor
+        buttonsView.layer.borderWidth = 2
         view.addSubview(buttonsView)
         
         NSLayoutConstraint.activate([
@@ -129,6 +132,7 @@ class ViewController: UIViewController {
         var clueString = ""
         var solutionString = ""
         var letterBits = [String]()
+        questionsAnswered = 0
         
         if let levelFileURL = Bundle.main.url(forResource: "level\(level)", withExtension: "txt") {
             if let levelContents = try? String(contentsOf: levelFileURL) {
@@ -189,12 +193,18 @@ class ViewController: UIViewController {
             
             currentAnswer.text = ""
             score += 1
+            questionsAnswered += 1
             
-            if score.isMultiple(of: 7) {
+            if questionsAnswered.isMultiple(of: solutions.count) {
                 let ac = UIAlertController(title: "Well done!", message: "Are you ready for the next level?", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "Let's go", style: .default, handler: levelUp))
                 present(ac, animated: true)
             }
+        } else {
+            score -= 1
+            let ac = UIAlertController(title: "Wrong!", message: "Incorrect answer. Try again.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in self?.clearTapped(sender) }))
+            present(ac, animated: true)
         }
     }
     
